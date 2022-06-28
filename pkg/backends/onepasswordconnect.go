@@ -1,6 +1,7 @@
 package backends
 
 import (
+	"log"
 	"strings"
 
 	"github.com/1Password/connect-sdk-go/connect"
@@ -53,4 +54,16 @@ func (a *OnePasswordConnect) GetIndividualSecret(kvpath, secret, version string,
 		return nil, err
 	}
 	return data[secret], nil
+}
+
+func (a *OnePasswordConnect) SetIndividualSecret(kvpath, secret, version, value string) error {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil
+}
+
+func (a *OnePasswordConnect) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil, nil
 }

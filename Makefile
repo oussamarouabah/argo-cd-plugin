@@ -13,3 +13,6 @@ install: build
 
 e2e: install
 	./argocd-vault-plugin
+
+getall:
+	go run main.go getall -c env.json ./secrets key-quick-start testKey > secrets.yaml

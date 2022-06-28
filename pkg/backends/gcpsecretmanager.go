@@ -3,11 +3,13 @@ package backends
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 
-	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
 	"github.com/googleapis/gax-go/v2"
 	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
+
+	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
 )
 
 var GCPPath, _ = regexp.Compile(`projects/(?P<projectid>.+)/secrets/(?P<secretid>.+)`)
@@ -73,4 +75,16 @@ func (a *GCPSecretManager) GetIndividualSecret(kvpath, secret, version string, a
 		return nil, err
 	}
 	return data[secret], nil
+}
+
+func (a *GCPSecretManager) SetIndividualSecret(kvpath, secret, version, value string) error {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil
+}
+
+func (a *GCPSecretManager) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil, nil
 }

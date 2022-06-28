@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	yaml "sigs.k8s.io/yaml"
+
+	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
 )
 
 // A Resource is the basis for all Templates
@@ -17,6 +18,8 @@ type Resource struct {
 	replacementErrors []error                // Any errors encountered in performing replacements
 	Data              map[string]interface{} // The data to replace with, from Vault
 	Annotations       map[string]string
+	Value             string
+	Version           string
 }
 
 // Template is the template for Kubernetes
@@ -50,6 +53,17 @@ func NewTemplate(template unstructured.Unstructured, backend types.Backend) (*Te
 	}, nil
 }
 
+func NewSecretTemplate(template unstructured.Unstructured, value string, version string) *Template {
+	return &Template{
+		Resource{
+			Kind:         template.GetKind(),
+			TemplateData: template.Object,
+			Value:        value,
+			Version:      version,
+		},
+	}
+}
+
 // Replace will replace the <placeholders> in the Template's data with values from Vault.
 // It will return an aggregrate of any errors encountered during the replacements.
 // For both non-Secret resources and Secrets with <placeholder>'s in `stringData`, the value in Vault is emitted as-is
@@ -74,6 +88,21 @@ func (t *Template) Replace() error {
 			errMessages[idx] = err.Error()
 		}
 		return fmt.Errorf("Replace: could not replace all placeholders in Template:\n%s", strings.Join(errMessages, "\n"))
+	}
+	return nil
+}
+
+func (t *Template) SetVersion(version string) {
+	if metadata, ok := t.TemplateData["metadata"]; ok {
+		name := metadata.(map[string]interface{})["name"]
+		metadata.(map[string]interface{})["name"] = name.(string) + "-" + version
+	}
+}
+
+func (t *Template) ReplaceValue() error {
+	err := replaceSecret(t.Value, &t.TemplateData)
+	if err != nil {
+		return fmt.Errorf("ReplaceValue: could not replace all placeholders in Template:\n%s", err)
 	}
 	return nil
 }

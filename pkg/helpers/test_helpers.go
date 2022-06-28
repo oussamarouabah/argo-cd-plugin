@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"log"
 	"net"
 	"strconv"
 	"testing"
@@ -373,4 +374,16 @@ func (v *MockVault) GetIndividualSecret(path, secret, version string, annotation
 	}
 	num, _ := strconv.ParseInt(version, 10, 0)
 	return v.Data[num-1][secret], nil
+}
+
+func (v *MockVault) SetIndividualSecret(kvpath, secret, version, value string) error {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil
+}
+
+func (a *MockVault) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil, nil
 }

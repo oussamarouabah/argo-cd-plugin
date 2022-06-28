@@ -2,6 +2,7 @@ package backends
 
 import (
 	"fmt"
+	"log"
 
 	"k8s.io/apimachinery/pkg/util/yaml"
 )
@@ -54,4 +55,16 @@ func (a *LocalSecretManager) GetIndividualSecret(kvpath, secret, version string,
 		return nil, err
 	}
 	return data[secret], nil
+}
+
+func (a *LocalSecretManager) SetIndividualSecret(kvpath, secret, version, value string) error {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil
+}
+
+func (a *LocalSecretManager) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil, nil
 }

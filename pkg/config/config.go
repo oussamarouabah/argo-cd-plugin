@@ -17,10 +17,6 @@ import (
 	kvauth "github.com/Azure/azure-sdk-for-go/services/keyvault/auth"
 	"github.com/IBM/go-sdk-core/v5/core"
 	ibmsm "github.com/IBM/secrets-manager-go-sdk/secretsmanagerv1"
-	"github.com/argoproj-labs/argocd-vault-plugin/pkg/auth/vault"
-	"github.com/argoproj-labs/argocd-vault-plugin/pkg/backends"
-	"github.com/argoproj-labs/argocd-vault-plugin/pkg/kube"
-	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	awssm "github.com/aws/aws-sdk-go/service/secretsmanager"
@@ -29,6 +25,11 @@ import (
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/go-sdk/iamkey"
 	sops "go.mozilla.org/sops/v3/decrypt"
+
+	"github.com/argoproj-labs/argocd-vault-plugin/pkg/auth/vault"
+	"github.com/argoproj-labs/argocd-vault-plugin/pkg/backends"
+	"github.com/argoproj-labs/argocd-vault-plugin/pkg/kube"
+	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
 )
 
 // Options options that can be passed to a Config struct
@@ -59,7 +60,7 @@ func New(v *viper.Viper, co *Options) (*Config, error) {
 	// Read in config file or kubernetes secret and set as env vars
 	err := readConfigOrSecret(co.SecretName, co.ConfigPath, v)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Config.New: failed to read secretorconfig: %v", err)
 	}
 
 	// Instantiate Env
@@ -174,7 +175,7 @@ func New(v *viper.Viper, co *Options) (*Config, error) {
 		{
 			authorizer, err := kvauth.NewAuthorizerFromEnvironment()
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("Config.New: failed to create authorizer: %v", err)
 			}
 
 			basicClient := keyvault.New()

@@ -10,8 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
 	k8yaml "k8s.io/apimachinery/pkg/util/yaml"
+
+	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
 )
 
 type missingKeyError struct {
@@ -98,6 +99,44 @@ func replaceInner(
 			}
 		}
 	}
+}
+
+func replaceSecret(
+	secretValue string,
+	node *map[string]interface{}) []error {
+	var errs []error
+	obj := *node
+	for key, value := range obj {
+		valueType := reflect.ValueOf(value).Kind()
+
+		// Recurse through nested maps
+		if valueType == reflect.Map {
+			inner, ok := value.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			replaceSecret(secretValue, &inner)
+		} else if valueType == reflect.Slice {
+			for idx, elm := range value.([]interface{}) {
+				switch d := elm.(type) {
+				case map[string]interface{}:
+					inner := elm.(map[string]interface{})
+					replaceSecret(secretValue, &inner)
+
+				case string:
+					if genericPlaceholder.Match([]byte(d)) {
+						value.([]interface{})[idx] = secretValue
+					}
+				}
+			}
+		} else if valueType == reflect.String {
+			// Base case, replace templated strings
+			if genericPlaceholder.Match([]byte(value.(string))) {
+				obj[key] = secretValue
+			}
+		}
+	}
+	return errs
 }
 
 func genericReplacement(key, value string, resource Resource) (_ interface{}, err []error) {

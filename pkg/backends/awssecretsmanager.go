@@ -3,6 +3,7 @@ package backends
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
@@ -64,4 +65,16 @@ func (a *AWSSecretsManager) GetIndividualSecret(kvpath, secret, version string, 
 		return nil, err
 	}
 	return data[secret], nil
+}
+
+func (a *AWSSecretsManager) SetIndividualSecret(kvpath, secret, version, value string) error {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil
+}
+
+func (a *AWSSecretsManager) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil, nil
 }

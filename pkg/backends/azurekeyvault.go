@@ -3,10 +3,11 @@ package backends
 import (
 	"context"
 	"fmt"
-	"github.com/Azure/azure-sdk-for-go/profiles/latest/keyvault/keyvault"
 	"path"
 	"strings"
 	"time"
+
+	"github.com/Azure/azure-sdk-for-go/profiles/latest/keyvault/keyvault"
 )
 
 // AzureKeyVault is a struct for working with an Azure Key Vault backend
@@ -88,4 +89,48 @@ func (a *AzureKeyVault) GetIndividualSecret(kvpath, secret, version string, anno
 	}
 
 	return *data.Value, nil
+}
+
+func (a *AzureKeyVault) SetIndividualSecret(kvpath, secret, version, value string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	kvpath = fmt.Sprintf("https://%s.vault.azure.net", kvpath)
+	_, err := a.Client.SetSecret(ctx, kvpath, secret, keyvault.SecretSetParameters{
+		Value: &value,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *AzureKeyVault) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	kvpath = fmt.Sprintf("https://%s.vault.azure.net", kvpath)
+	secretVersions, err := a.Client.GetSecretVersions(ctx, kvpath, secretName, nil)
+	if err != nil {
+		return nil, err
+	}
+	data := make(map[string]map[string]interface{})
+
+	// Gather all secrets in Key Vault
+	for ; secretVersions.NotDone(); secretVersions.NextWithContext(ctx) {
+		for _, value := range secretVersions.Values() {
+			version := path.Base(*value.ID)
+			if data[secretName] == nil {
+				data[secretName] = make(map[string]interface{})
+			}
+			secret, err := a.Client.GetSecret(ctx, kvpath, secretName, version)
+			if err != nil {
+				return nil, err
+			}
+			data[secretName][version] = *secret.Value
+		}
+	}
+
+	return data, nil
 }

@@ -3,9 +3,11 @@ package backends
 import (
 	"errors"
 	"fmt"
+	"log"
+
+	"github.com/hashicorp/vault/api"
 
 	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
-	"github.com/hashicorp/vault/api"
 )
 
 // Vault is a struct for working with a Vault backend
@@ -92,4 +94,16 @@ func (v *Vault) GetIndividualSecret(kvpath, secret, version string, annotations 
 		return nil, err
 	}
 	return data[secret], nil
+}
+
+func (v *Vault) SetIndividualSecret(kvpath, secret, version, value string) error {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil
+}
+
+func (a *Vault) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil, nil
 }

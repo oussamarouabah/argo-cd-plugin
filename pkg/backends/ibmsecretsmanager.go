@@ -2,11 +2,13 @@ package backends
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"sync"
 
 	"github.com/IBM/go-sdk-core/v5/core"
 	ibmsm "github.com/IBM/secrets-manager-go-sdk/secretsmanagerv1"
+
 	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
 )
 
@@ -368,4 +370,16 @@ func (i *IBMSecretsManager) GetIndividualSecret(kvpath, secretName, version stri
 	}
 
 	return secrets[secretName], nil
+}
+
+func (i *IBMSecretsManager) SetIndividualSecret(kvpath, secret, version, value string) error {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil
+}
+
+func (a *IBMSecretsManager) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil, nil
 }

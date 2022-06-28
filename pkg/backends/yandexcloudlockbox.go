@@ -3,6 +3,7 @@ package backends
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
 )
@@ -60,4 +61,16 @@ func (ycl *YandexCloudLockbox) GetIndividualSecret(secretID, key, version string
 	}
 
 	return secret, nil
+}
+
+func (ycl *YandexCloudLockbox) SetIndividualSecret(kvpath, secret, version, value string) error {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil
+}
+
+func (a *YandexCloudLockbox) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+	log.Println("This functionality is not implemented for this backend")
+
+	return nil, nil
 }
