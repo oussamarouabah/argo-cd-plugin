@@ -1,0 +1,1 @@
+export AVP_TYPE=azurekeyvault

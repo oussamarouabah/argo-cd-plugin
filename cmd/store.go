@@ -77,7 +77,7 @@ func store(cmd *cobra.Command, args []string) error {
 		ConfigPath: configPath,
 	})
 	if err != nil {
-		return fmt.Errorf("Store: failed to create config: %v", err)
+		return fmt.Errorf("store: failed to create config: %v", err)
 	}
 
 	err = cmdConfig.Backend.Login()
@@ -90,11 +90,6 @@ func store(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// TODO read secrets from stdin
-	// TODO read secrets from file
-	// TODO set secrets in vault, Azure Key-Vault
-	// cmdConfig.Backend.SetIndividualSecret(args[0], args[1])
 
 	return nil
 }

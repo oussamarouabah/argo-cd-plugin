@@ -95,7 +95,7 @@ func (t *Template) Replace() error {
 func (t *Template) SetVersion(version string) {
 	if metadata, ok := t.TemplateData["metadata"]; ok {
 		name := metadata.(map[string]interface{})["name"]
-		metadata.(map[string]interface{})["name"] = name.(string) + "-" + version
+		metadata.(map[string]interface{})["name"] = name.(string) + "//" + version
 	}
 }
 

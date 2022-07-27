@@ -5,13 +5,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"github.com/argoproj-labs/argocd-vault-plugin/pkg/config"
 	"github.com/argoproj-labs/argocd-vault-plugin/pkg/kube"
 	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // NewGenerateCommand initializes the generate command

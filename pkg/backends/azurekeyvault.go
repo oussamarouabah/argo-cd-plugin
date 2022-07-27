@@ -107,6 +107,11 @@ func (a *AzureKeyVault) SetIndividualSecret(kvpath, secret, version, value strin
 }
 
 func (a *AzureKeyVault) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+	_, err := a.GetIndividualSecret(kvpath, secretName, "", annotations)
+	if err != nil {
+		return nil, err
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
