@@ -382,8 +382,12 @@ func (v *MockVault) SetIndividualSecret(kvpath, secret, version, value string) e
 	return nil
 }
 
-func (a *MockVault) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+func (a *MockVault) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]interface{}, error) {
 	log.Println("This functionality is not implemented for this backend")
 
+	return nil, nil
+}
+
+func (a *MockVault) GetAllSecretsInPath(kvpath string, annotations map[string]string) (map[string]string, error) {
 	return nil, nil
 }

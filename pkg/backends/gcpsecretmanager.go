@@ -83,8 +83,12 @@ func (a *GCPSecretManager) SetIndividualSecret(kvpath, secret, version, value st
 	return nil
 }
 
-func (a *GCPSecretManager) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+func (a *GCPSecretManager) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]interface{}, error) {
 	log.Println("This functionality is not implemented for this backend")
 
+	return nil, nil
+}
+
+func (a *GCPSecretManager) GetAllSecretsInPath(kvpath string, annotations map[string]string) (map[string]string, error) {
 	return nil, nil
 }

@@ -63,8 +63,12 @@ func (a *LocalSecretManager) SetIndividualSecret(kvpath, secret, version, value 
 	return nil
 }
 
-func (a *LocalSecretManager) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+func (a *LocalSecretManager) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]interface{}, error) {
 	log.Println("This functionality is not implemented for this backend")
 
+	return nil, nil
+}
+
+func (a *LocalSecretManager) GetAllSecretsInPath(kvpath string, annotations map[string]string) (map[string]string, error) {
 	return nil, nil
 }

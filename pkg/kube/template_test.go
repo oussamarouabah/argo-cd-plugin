@@ -8,7 +8,6 @@ import (
 
 	"github.com/argoproj-labs/argocd-vault-plugin/pkg/helpers"
 	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
-
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -1022,5 +1021,64 @@ func TestToYAML_Job(t *testing.T) {
 
 	if !strings.Contains(actual, expected) {
 		t.Fatalf("expected YAML:\n%s\nbut got:\n%s\n", expected, actual)
+	}
+}
+
+func TestNewSecretTemplate(t *testing.T) {
+	type args struct {
+		template unstructured.Unstructured
+		value    string
+		version  string
+	}
+	tests := []struct {
+		name string
+		args args
+		want *Template
+	}{
+		{
+			name: "secret",
+			args: args{
+				template: unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "v1",
+						"kind":       "Secret",
+						"metadata": map[string]interface{}{
+							"name": "testKey",
+						},
+						"type": "Opaque",
+						"data": map[string]interface{}{
+							"testKey": "<testKey>",
+						},
+					},
+				},
+				value:   "value",
+				version: "v1",
+			},
+			want: &Template{
+				Resource: Resource{
+					Kind: "Secret",
+					TemplateData: map[string]interface{}{
+						"apiVersion": "v1",
+						"kind":       "Secret",
+						"metadata": map[string]interface{}{
+							"name": "testKey",
+						},
+						"type": "Opaque",
+						"data": map[string]interface{}{
+							"testKey": "<testKey>",
+						},
+					},
+					Value:   "value",
+					Version: "v1",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewSecretTemplate(tt.args.template, tt.args.value, tt.args.version); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewSecretTemplate() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

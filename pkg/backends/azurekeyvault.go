@@ -106,12 +106,7 @@ func (a *AzureKeyVault) SetIndividualSecret(kvpath, secret, version, value strin
 	return nil
 }
 
-func (a *AzureKeyVault) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
-	_, err := a.GetIndividualSecret(kvpath, secretName, "", annotations)
-	if err != nil {
-		return nil, err
-	}
-
+func (a *AzureKeyVault) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -120,22 +115,42 @@ func (a *AzureKeyVault) GetSecret(kvpath, secretName string, annotations map[str
 	if err != nil {
 		return nil, err
 	}
-	data := make(map[string]map[string]interface{})
+	data := make(map[string]interface{})
 
 	// Gather all secrets in Key Vault
 	for ; secretVersions.NotDone(); secretVersions.NextWithContext(ctx) {
 		for _, value := range secretVersions.Values() {
 			version := path.Base(*value.ID)
-			if data[secretName] == nil {
-				data[secretName] = make(map[string]interface{})
-			}
 			secret, err := a.Client.GetSecret(ctx, kvpath, secretName, version)
 			if err != nil {
 				return nil, err
 			}
-			data[secretName][version] = *secret.Value
+			data[version] = *secret.Value
 		}
 	}
 
 	return data, nil
+}
+
+func (a *AzureKeyVault) GetAllSecretsInPath(kvpath string, annotations map[string]string) (map[string]string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	kvpath = fmt.Sprintf("https://%s.vault.azure.net", kvpath)
+	secretList, err := a.Client.GetSecretsComplete(ctx, kvpath, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	values := make(map[string]string)
+	for ; secretList.NotDone(); secretList.NextWithContext(ctx) {
+		secret := path.Base(*secretList.Value().ID)
+		v, err := a.Client.GetSecret(ctx, kvpath, secret, "")
+		if err != nil {
+			return nil, err
+		}
+		values[secret] = *v.Value
+	}
+
+	return values, nil
 }

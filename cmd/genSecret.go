@@ -1,6 +1,5 @@
 /*
 Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
@@ -15,11 +14,12 @@ import (
 
 	"github.com/argoproj-labs/argocd-vault-plugin/pkg/config"
 	"github.com/argoproj-labs/argocd-vault-plugin/pkg/kube"
+	"github.com/argoproj-labs/argocd-vault-plugin/pkg/types"
 )
 
 func NewGetAllCommand() *cobra.Command {
 	var command = &cobra.Command{
-		Use:   "getall",
+		Use:   "genSecret",
 		Short: "Get secrets from Vault",
 		RunE:  getAll,
 	}
@@ -38,7 +38,8 @@ func getAll(cmd *cobra.Command, args []string) error {
 	var manifests []unstructured.Unstructured
 	var err error
 
-	kvpath, secret := args[1], args[2]
+	// kvpath, secret := args[1], args[2]
+	secret := args[1]
 	path := args[0]
 	if path == StdIn {
 		manifests, err = readManifestData(cmd.InOrStdin())
@@ -66,7 +67,7 @@ func getAll(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(manifests) == 0 {
-		return fmt.Errorf("No manifests")
+		return fmt.Errorf("no manifests")
 	}
 
 	v := viper.New()
@@ -75,7 +76,7 @@ func getAll(cmd *cobra.Command, args []string) error {
 		ConfigPath: configPath,
 	})
 	if err != nil {
-		return fmt.Errorf("Store: failed to create config: %v", err)
+		return fmt.Errorf("store: failed to create config: %v", err)
 	}
 
 	err = cmdConfig.Backend.Login()
@@ -88,32 +89,33 @@ func getAll(cmd *cobra.Command, args []string) error {
 		if manifest.GetKind() != "Secret" {
 			continue
 		}
-		if metadata, ok := manifest.Object["metadata"]; ok {
-			if metadata.(map[string]interface{})["name"] == secret {
-				secMan = manifest
-			}
-		}
+		secMan = manifest
+		break
 	}
 
-	data, err := cmdConfig.Backend.GetSecret(kvpath, secret, nil)
+	kvpath := secMan.GetAnnotations()[types.AVPPathAnnotation]
+
+	secrets, err := cmdConfig.Backend.GetSecret(kvpath, secret, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
+	secMan.SetName(secret)
 
-	for key, value := range data[secret] {
-		temp := kube.NewSecretTemplate(secMan, value.(string), key)
-		err := temp.ReplaceValue()
+	for key, value := range secrets {
+		sec := secMan.DeepCopy()
+		sec.Object["stringData"] = map[string]string{secret: value.(string)}
+		annotations := sec.GetAnnotations()
+		annotations[types.VaultKVVersionAnnotation] = key
+		sec.SetAnnotations(annotations)
+		temp, err := kube.NewTemplate(*sec, cmdConfig.Backend)
 		if err != nil {
 			return err
 		}
-		temp.SetVersion(key)
 		output, err := temp.ToYAML()
 		if err != nil {
 			return err
 		}
-
 		fmt.Fprintf(cmd.OutOrStdout(), "%s---\n", output)
 	}
-
 	return nil
 }

@@ -19,7 +19,7 @@ var (
 
 func NewStoreCommand() *cobra.Command {
 	var command = &cobra.Command{
-		Use:   "store",
+		Use:   "upsert",
 		Short: "Store secrets in Vault",
 		RunE:  store,
 	}
@@ -84,9 +84,8 @@ func store(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	log.Println("Succeeded to login to Vault")
-	err = cmdConfig.Backend.SetIndividualSecret(args[0], args[1], "", args[2])
+	path, secret, value := args[0], args[1], args[2]
+	err = cmdConfig.Backend.SetIndividualSecret(path, secret, "", value)
 	if err != nil {
 		log.Fatal(err)
 	}

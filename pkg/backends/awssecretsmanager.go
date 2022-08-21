@@ -73,8 +73,12 @@ func (a *AWSSecretsManager) SetIndividualSecret(kvpath, secret, version, value s
 	return nil
 }
 
-func (a *AWSSecretsManager) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]map[string]interface{}, error) {
+func (a *AWSSecretsManager) GetSecret(kvpath, secretName string, annotations map[string]string) (map[string]interface{}, error) {
 	log.Println("This functionality is not implemented for this backend")
 
+	return nil, nil
+}
+
+func (a *AWSSecretsManager) GetAllSecretsInPath(kvpath string, annotations map[string]string) (map[string]string, error) {
 	return nil, nil
 }

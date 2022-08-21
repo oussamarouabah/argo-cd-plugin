@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -73,31 +72,44 @@ func NewGenerateCommand() *cobra.Command {
 			}
 
 			if len(manifests) == 0 {
-				return fmt.Errorf("No manifests")
+				return fmt.Errorf("no manifests")
 			}
 
 			for _, manifest := range manifests {
-
-				template, err := kube.NewTemplate(manifest, cmdConfig.Backend)
-				if err != nil {
-					return err
-				}
-
-				annotations := manifest.GetAnnotations()
-				avpIgnore, _ := strconv.ParseBool(annotations[types.AVPIgnoreAnnotation])
-				if !avpIgnore {
-					err = template.Replace()
+				switch manifest.GetKind() {
+				case "Secret":
+					annotations := manifest.GetAnnotations()
+					path := annotations[types.AVPPathAnnotation]
+					data, err := cmdConfig.Backend.GetAllSecretsInPath(path, annotations)
 					if err != nil {
 						return err
 					}
-				}
+					for k, v := range data {
+						man := manifest.DeepCopy()
+						man.SetName(k)
+						man.Object["stringData"] = map[string]string{k: v}
+						template, err := kube.NewTemplate(*man, cmdConfig.Backend)
+						if err != nil {
+							return err
+						}
+						output, err := template.ToYAML()
+						if err != nil {
+							return err
+						}
+						fmt.Fprintf(cmd.OutOrStdout(), "%s---\n", output)
+					}
+				default:
+					template, err := kube.NewTemplate(manifest, cmdConfig.Backend)
+					if err != nil {
+						return err
+					}
+					output, err := template.ToYAML()
+					if err != nil {
+						return err
+					}
 
-				output, err := template.ToYAML()
-				if err != nil {
-					return err
+					fmt.Fprintf(cmd.OutOrStdout(), "%s---\n", output)
 				}
-
-				fmt.Fprintf(cmd.OutOrStdout(), "%s---\n", output)
 			}
 
 			return nil
