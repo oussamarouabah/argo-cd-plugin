@@ -92,3 +92,7 @@ func (a *GCPSecretManager) GetSecret(kvpath, secretName string, annotations map[
 func (a *GCPSecretManager) GetAllSecretsInPath(kvpath string, annotations map[string]string) (map[string]string, error) {
 	return nil, nil
 }
+
+func (a *GCPSecretManager) SetSecretVerion(kvpath, secret, version, value string) error {
+	return nil
+}

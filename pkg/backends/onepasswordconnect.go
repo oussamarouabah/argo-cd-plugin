@@ -71,3 +71,7 @@ func (a *OnePasswordConnect) GetSecret(kvpath, secretName string, annotations ma
 func (a *OnePasswordConnect) GetAllSecretsInPath(kvpath string, annotations map[string]string) (map[string]string, error) {
 	return nil, nil
 }
+
+func (a *OnePasswordConnect) SetSecretVerion(kvpath, secret, version, value string) error {
+	return nil
+}

@@ -391,3 +391,7 @@ func (a *MockVault) GetSecret(kvpath, secretName string, annotations map[string]
 func (a *MockVault) GetAllSecretsInPath(kvpath string, annotations map[string]string) (map[string]string, error) {
 	return nil, nil
 }
+
+func (a *MockVault) SetSecretVerion(kvpath, secret, version, value string) error {
+	return nil
+}

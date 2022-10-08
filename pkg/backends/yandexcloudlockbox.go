@@ -78,3 +78,7 @@ func (a *YandexCloudLockbox) GetSecret(kvpath, secretName string, annotations ma
 func (a *YandexCloudLockbox) GetAllSecretsInPath(kvpath string, annotations map[string]string) (map[string]string, error) {
 	return nil, nil
 }
+
+func (a *YandexCloudLockbox) SetSecretVerion(kvpath, secret, version, value string) error {
+	return nil
+}

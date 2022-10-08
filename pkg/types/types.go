@@ -19,6 +19,7 @@ type Backend interface {
 	SetIndividualSecret(path, secret, version, value string) error
 	GetSecret(kvpath, secret string, annotations map[string]string) (map[string]interface{}, error)
 	GetAllSecretsInPath(kvpath string, annotations map[string]string) (map[string]string, error)
+	SetSecretVerion(kvpath, secret, version, value string) error
 }
 
 // AuthType is and interface for the supported authentication methods

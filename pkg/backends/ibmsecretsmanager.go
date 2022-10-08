@@ -387,3 +387,7 @@ func (a *IBMSecretsManager) GetSecret(kvpath, secretName string, annotations map
 func (a *IBMSecretsManager) GetAllSecretsInPath(kvpath string, annotations map[string]string) (map[string]string, error) {
 	return nil, nil
 }
+
+func (a *IBMSecretsManager) SetSecretVerion(kvpath, secret, version, value string) error {
+	return nil
+}

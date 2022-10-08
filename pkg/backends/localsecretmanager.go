@@ -72,3 +72,7 @@ func (a *LocalSecretManager) GetSecret(kvpath, secretName string, annotations ma
 func (a *LocalSecretManager) GetAllSecretsInPath(kvpath string, annotations map[string]string) (map[string]string, error) {
 	return nil, nil
 }
+
+func (a *LocalSecretManager) SetSecretVerion(kvpath, secret, version, value string) error {
+	return nil
+}

@@ -91,6 +91,29 @@ func (a *AzureKeyVault) GetIndividualSecret(kvpath, secret, version string, anno
 	return *data.Value, nil
 }
 
+func (a *AzureKeyVault) SetSecretVerion(kvpath, secret, version, value string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// First disable the previos version of the wanted value, the create a new secret version with that same value
+	var false = false
+	a.Client.UpdateSecret(ctx, kvpath, secret, version, keyvault.SecretUpdateParameters{
+		SecretAttributes: &keyvault.SecretAttributes{
+			Enabled: &false,
+		},
+	})
+
+	kvpath = fmt.Sprintf("https://%s.vault.azure.net", kvpath)
+	_, err := a.Client.SetSecret(ctx, kvpath, secret, keyvault.SecretSetParameters{
+		Value: &value,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (a *AzureKeyVault) SetIndividualSecret(kvpath, secret, version, value string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
