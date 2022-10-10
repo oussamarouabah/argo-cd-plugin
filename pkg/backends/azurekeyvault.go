@@ -95,16 +95,19 @@ func (a *AzureKeyVault) SetSecretVerion(kvpath, secret, version, value string) e
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	kvpath = fmt.Sprintf("https://%s.vault.azure.net", kvpath)
 	// First disable the previos version of the wanted value, the create a new secret version with that same value
 	var false = false
-	a.Client.UpdateSecret(ctx, kvpath, secret, version, keyvault.SecretUpdateParameters{
+	_, err := a.Client.UpdateSecret(ctx, kvpath, secret, version, keyvault.SecretUpdateParameters{
 		SecretAttributes: &keyvault.SecretAttributes{
 			Enabled: &false,
 		},
 	})
+	if err != nil {
+		return err
+	}
 
-	kvpath = fmt.Sprintf("https://%s.vault.azure.net", kvpath)
-	_, err := a.Client.SetSecret(ctx, kvpath, secret, keyvault.SecretSetParameters{
+	_, err = a.Client.SetSecret(ctx, kvpath, secret, keyvault.SecretSetParameters{
 		Value: &value,
 	})
 	if err != nil {
