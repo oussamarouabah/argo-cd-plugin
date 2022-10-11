@@ -147,6 +147,9 @@ func (a *AzureKeyVault) GetSecret(kvpath, secretName string, annotations map[str
 	for ; secretVersions.NotDone(); secretVersions.NextWithContext(ctx) {
 		for _, value := range secretVersions.Values() {
 			version := path.Base(*value.ID)
+			if !*value.Attributes.Enabled {
+				continue
+			}
 			secret, err := a.Client.GetSecret(ctx, kvpath, secretName, version)
 			if err != nil {
 				return nil, err
